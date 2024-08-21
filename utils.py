@@ -20,6 +20,6 @@ def get_chat_response(prompt, memory, openai_api_key):
     return response["response"]
 
 
-text = ConversationBufferMemory(return_messages=True)
+# text = ConversationBufferMemory(return_messages=True)
 # print(get_chat_response("沈从文的作品有那些？", text, os.getenv("OPENAI_API_KEY")))
 # print(get_chat_response("我上一个问题是什么？", text, os.getenv("OPENAI_API_KEY")))
