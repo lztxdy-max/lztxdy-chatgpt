@@ -2,7 +2,7 @@ from langchain.chains import ConversationChain
 from langchain_openai import ChatOpenAI
 
 import os
-from langchain.memory import ConversationBufferMemory
+# from langchain.memory import ConversationBufferMemory
 import httpx
 http_client = httpx.Client(
         base_url=os.getenv("OPENAI_API_BASE"),
