@@ -1,8 +1,11 @@
-from langchain.chains import ConversationChain
+from prompt_template import system_template_text, user_template_text
 from langchain_openai import ChatOpenAI
+from langchain.output_parsers import PydanticOutputParser
+from langchain.prompts import ChatPromptTemplate
+from xiaohongshu_model import Xiaohongshu
+
 
 import os
-# from langchain.memory import ConversationBufferMemory
 import httpx
 http_client = httpx.Client(
         base_url=os.getenv("OPENAI_API_BASE"),
@@ -10,16 +13,20 @@ http_client = httpx.Client(
     )
 
 
-def get_chat_response(prompt, memory, openai_api_key):
-    model = ChatOpenAI(model="gpt-3.5-turbo", openai_api_key=openai_api_key,
-                       openai_api_base=os.getenv("OPENAI_API_BASE"),
+def generate_xiaohongshu(theme, openai_api_key):
+    prompt = ChatPromptTemplate.from_messages([
+        ("system", system_template_text),
+        ("user", user_template_text)
+    ])
+    model = ChatOpenAI(model="gpt-3.5-turbo", api_key=openai_api_key, openai_api_base=os.getenv("OPENAI_API_BASE"),
                        http_client=http_client)
-    chain = ConversationChain(llm=model, memory=memory)
+    output_parser = PydanticOutputParser(pydantic_object=Xiaohongshu)
+    chain = prompt | model | output_parser
+    result = chain.invoke({
+        "parser_instructions": output_parser.get_format_instructions(),
+        "theme": theme
+    })
+    return result
 
-    response = chain.invoke({"input": prompt})
-    return response["response"]
 
-
-# text = ConversationBufferMemory(return_messages=True)
-# print(get_chat_response("沈从文的作品有那些？", text, os.getenv("OPENAI_API_KEY")))
-# print(get_chat_response("我上一个问题是什么？", text, os.getenv("OPENAI_API_KEY")))
+# print(generate_xiaohongshu("大模型", os.getenv("OPENAI_API_KEY")))
